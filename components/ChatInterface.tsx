@@ -1,31 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import fetchModelResponse from "@/app/lib/data";
 import { Bot, User } from "lucide-react";
-
-interface Message {
-  text: string;
-  isUser: boolean;
-}
+import { useDropzone } from "react-dropzone";
+import { Message } from "@/app/types";
 
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isInitialView, setIsInitialView] = useState(true);
+  const [currentFile, setCurrentFile] = useState<File | null>(null);
+
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 0) {
+      setCurrentFile(acceptedFiles[0]);
+    }
+  }, []);
+
+  const { getRootProps, getInputProps, open } = useDropzone({
+    onDrop,
+    maxFiles: 1,
+    multiple: false,
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim()) {
-      setMessages([...messages, { text: input, isUser: true }]);
+      const newMessage: Message = {
+        text: input,
+        isUser: true,
+        file: currentFile || undefined,
+      };
+
+      setMessages([...messages, newMessage]);
       setInput("");
+      setCurrentFile(null);
       setIsInitialView(false);
 
       // model response
-
-      fetchModelResponse(input)
+      fetchModelResponse(newMessage)
         .then((modelResponse) => {
           setMessages((prev) => [
             ...prev,
@@ -60,7 +76,10 @@ export default function ChatInterface() {
                   <Bot size={20} />
                 </div>
               )}
-              <div className={`max-w-xs lg:max-w-md ${message.isUser ? "bg-blue-500 text-white rounded-lg p-2" : "bg-gray-100 text-gray-800 rounded-lg p-2"}`} dangerouslySetInnerHTML={{ __html: message.text }}></div>
+              <div className={`max-w-xs lg:max-w-md ${message.isUser ? "bg-blue-500 text-white rounded-lg p-2" : "bg-gray-100 text-gray-800 rounded-lg p-2"}`}>
+                <div dangerouslySetInnerHTML={{ __html: message.text }}></div>
+                {message.file && <div className="mt-2 text-sm">📎 Attached: {message.file.name}</div>}
+              </div>
               {message.isUser && (
                 <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
                   <User size={20} className="text-white" />
@@ -74,7 +93,15 @@ export default function ChatInterface() {
         <div className="p-4">
           <form onSubmit={handleSubmit} className="flex space-x-2">
             <Textarea value={input} onChange={(e) => setInput(e.target.value)} placeholder="Type your message here..." className="flex-grow" />
-            <Button type="submit">Send</Button>
+            <div className="flex flex-col space-y-2">
+              <Button type="submit">Send</Button>
+              <div {...getRootProps({ className: "dropzone" })}>
+                <input {...getInputProps()} />
+                <Button type="button" onClick={open} variant={currentFile ? "secondary" : "default"}>
+                  {currentFile ? "✓ File added" : "Add file"}
+                </Button>
+              </div>
+            </div>
           </form>
         </div>
       )}
