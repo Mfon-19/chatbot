@@ -1,7 +1,7 @@
 import { neon } from "@neondatabase/serverless";
 import { v4 as uuid } from "uuid";
 
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
   console.log("Reached end point");
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ message: "Method Not Allowed" }), { status: 405 });
