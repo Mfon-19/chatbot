@@ -5,9 +5,40 @@ import { LogOut, User } from "lucide-react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import Image from "next/image";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { useEffect } from "react";
 
 export default function Header() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    const createUser = async () => {
+      console.log(`Email: ${session?.user?.email}, Name: ${session?.user?.name}`)
+      if (session?.user) {
+        try {
+          const response = await fetch("/api/users", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email: session?.user?.email, name: session?.user?.name }),
+          });
+
+          if (!response.ok) {
+            // Server responded with an error status
+            const errorData = await response.text();
+            console.error(`Error creating user: ${response.status} - ${response.statusText}`, errorData);
+            return;
+          }
+        } catch (error) {
+          console.error(`Error creating user: ${error}`);
+        }
+      }
+    };
+
+    if (status === "authenticated") {
+      createUser();
+    }
+  }, [status, session]);
 
   return (
     <header className="fixed top-0 left-0 right-0 flex justify-between items-center p-4 bg-white shadow-sm">
