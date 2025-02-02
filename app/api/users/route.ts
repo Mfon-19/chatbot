@@ -2,7 +2,6 @@ import { neon } from "@neondatabase/serverless";
 import { v4 as uuid } from "uuid";
 
 export async function POST(req: Request) {
-  console.log("Reached end point");
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ message: "Method Not Allowed" }), { status: 405 });
   }
@@ -14,10 +13,10 @@ export async function POST(req: Request) {
     const email = body.email;
     const name = body.name;
 
-    
-    // if (!email || !name) {
-    //   return res.status(400).json({ message: "Missing email or name in request body" });
-    // }
+    // Uncomment and fix the validation
+    if (!email || !name) {
+      return new Response(JSON.stringify({ message: "Missing email or name in request body" }), { status: 400 });
+    }
 
     const result = await sql`SELECT * FROM users WHERE email = ${email}`;
 
@@ -33,7 +32,6 @@ export async function POST(req: Request) {
         message: "Success",
       })
     );
-
   } catch (error) {
     console.error("Error in handler:", error);
     return new Response(

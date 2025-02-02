@@ -1,14 +1,6 @@
-import ChatInterface from "@/components/ChatInterface";
-import Header from "@/components/Header";
-
+import Chat from "@/components/Chat";
+import { v4 as uuid } from "uuid";
 
 export default function Home() {
-  return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className="flex-grow pt-16 justify-center items-center">
-        <ChatInterface />
-      </main>
-    </div>
-  )
+  return <Chat id={uuid()} />;
 }
