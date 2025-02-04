@@ -1,5 +1,4 @@
 import { neon } from "@neondatabase/serverless";
-import { Message } from "ai";
 
 const sql = neon(process.env.NEXT_PUBLIC_DATABASE_URL!);
 
@@ -34,9 +33,18 @@ export async function saveChat({ id, userId, title }: { id: string; userId: stri
 
 export async function saveMessages({ id, chatId, content, role }: { id: string; chatId: string; content: string; role: string }) {
   try {
-    return sql`INSERT INTO messages (id, chat_id, content, role) VALUES (${id}, ${chatId}, ${content}, ${role})`;
+    return await sql`INSERT INTO messages (id, chat_id, content, role) VALUES (${id}, ${chatId}, ${content}, ${role})`;
   } catch (error) {
     console.error(`Failed to save messages in database: ${error}`);
+    throw error;
+  }
+}
+
+export async function getMessagesByChatId({ id }: { id: string }) {
+  try {
+    return await sql`SELECT * from messages WHERE chat_id = ${id} ORDER BY created_at ASC`;
+  } catch (error) {
+    console.error(`Failed to get messages by chat id: ${error}`);
     throw error;
   }
 }

@@ -34,8 +34,7 @@ export async function POST(req: Request) {
       return new Response("No user message found", { status: 400 });
     }
 
-    const chat = await getChatById(id);
-
+    const chat = await getChatById({ id });
 
     if (!chat) {
       const title = await generateTitleFromUserMessage({ message: userMessage });
