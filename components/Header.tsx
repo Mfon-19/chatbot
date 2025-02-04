@@ -6,6 +6,7 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import Image from "next/image";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { useEffect } from "react";
+import { SidebarToggle } from '@/components/sidebar-toggle';
 
 export default function Header() {
   const { data: session, status } = useSession();
@@ -41,11 +42,9 @@ export default function Header() {
   }, [status, session]);
 
   return (
-    <header className="fixed top-0 left-0 right-0 flex justify-between items-center p-4 bg-white shadow-sm">
-      <div className="flex items-center space-x-2">
-        <span className="font-semibold text-xl">ChatBot</span>
-      </div>
-      <div>
+    <header className="flex sticky top-0 bg-background py-1.5 items-center px-2 md:px-2 gap-2 justify-between">
+      <SidebarToggle />
+      <div className="ml-auto">
         {session ? (
           <div className="flex items-center space-x-2">
             <DropdownMenu>

@@ -6,10 +6,13 @@ import { Bot, User } from "lucide-react";
 import { useCallback } from "react";
 import { Message, useChat } from "ai/react";
 import { Markdown } from "./markdown";
+import Header from "./Header";
+import StopButton from "./stop-button";
+import SendButton from "./send-button";
 
 export default function Chat({ id, initialMessages }: { id: string; initialMessages: Message[] }) {
   // const [currentFile, setCurrentFile] = useState<File | null>(null);
-  const { messages, input, handleInputChange, handleSubmit } = useChat({ id, body: { id }, initialMessages });
+  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({ id, body: { id }, initialMessages });
 
   // const handleFileChange = (e) => {
   //   setCurrentFile(e.target.files[0]);
@@ -40,8 +43,9 @@ export default function Chat({ id, initialMessages }: { id: string; initialMessa
   );
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className="flex flex-col min-w-0 h-dvh bg-background">
+      <Header />
+      <div className="flex flex-col min-w-0 gap-6 flex-1 overflow-y-scroll pt-4">
         {messages.length === 0 && <h1 className="text-3xl font-bold mb-4 text-center">What can I help you with?</h1>}
         {messages.map((message, index) => (
           <div key={index} className={`flex items-start space-x-2 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -61,10 +65,19 @@ export default function Chat({ id, initialMessages }: { id: string; initialMessa
           </div>
         ))}
       </div>
-      <div className="sticky bottom-0 p-4 bg-background border-t">
-        <form onSubmit={submitForm} className="flex space-x-2 max-w-4xl mx-auto">
+      <div className="flex mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl">
+        <form onSubmit={submitForm} className="relative w-full flex flex-col gap-4">
           <Textarea name="prompt" value={input} onChange={handleInputChange} placeholder="Type your message here..." className="flex-grow" />
-          <Button type="submit">Send</Button>
+          <div className="absolute bottom-0 right-0 p-2 w-fit flex flex-row justify-end">
+        {isLoading ? (
+          <StopButton stop={stop} />
+        ) : (
+          <SendButton
+            input={input}
+            submitForm={submitForm}
+          />
+        )}
+      </div>
         </form>
       </div>
     </div>
