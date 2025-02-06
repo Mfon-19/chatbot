@@ -1,7 +1,7 @@
 import { convertToCoreMessages, streamText } from "ai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { v4 as uuid } from "uuid";
-import { getChatById, getUserIdByEmail, saveChat, saveMessages } from "@/lib/queries";
+import { deleteChatByChatId, getChatById, getUserIdByEmail, saveChat, saveMessages } from "@/lib/queries";
 import { getMostRecentUserMessage } from "@/lib/utils";
 import { generateTitleFromUserMessage } from "@/app/actions";
 import { getServerSession } from "next-auth";
@@ -18,14 +18,6 @@ export async function POST(req: Request) {
     const userId = await getUserIdByEmail({ email: session.user?.email || "" });
 
     const { id, messages } = await req.json();
-
-    // const existingMessages = body.messages || [];
-    // const userMessageContent = body.data.file ? `File attached: ${body.data.file}` : body.messages?.content || "";
-
-    // const allMessages = [
-    //   ...existingMessages,
-    //   { role: "user", content: userMessageContent },
-    // ];
 
     const coreMessages = convertToCoreMessages(messages);
     const userMessage = getMostRecentUserMessage(coreMessages);
@@ -53,5 +45,21 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Error", error);
     return new Response("Invalid request data", { status: 400 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) return new Response("Unauthorized", { status: 401 });
+
+    const { id } = await req.json();
+
+    await deleteChatByChatId({ id });
+
+    return new Response("Deleted Successfully", { status: 200 });
+  } catch (error) {
+    console.error(`An error occured: ${error}`);
+    return new Response("An error occured", { status: 500 });
   }
 }

@@ -48,3 +48,22 @@ export async function getMessagesByChatId({ id }: { id: string }) {
     throw error;
   }
 }
+
+export async function getChatsByUserId({ id }: { id: string }) {
+  try {
+    return await sql`SELECT * FROM chats WHERE user_id = ${id}`;
+  } catch (error) {
+    console.error(`Failed to fetch chats by user id: ${error}`);
+    throw error;
+  }
+}
+
+export async function deleteChatByChatId({ id }: { id: string }) {
+  try {
+    await sql`DELETE FROM messages WHERE chat_id = ${id}`;
+    return await sql`DELETE FROM chats WHERE id = ${id}`;
+  } catch (error) {
+    console.error(`Failed to delete chat by Id: ${error}`);
+    throw error;
+  }
+}

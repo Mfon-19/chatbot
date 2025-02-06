@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Bot, User } from "lucide-react";
 import { useCallback } from "react";
@@ -11,27 +10,7 @@ import StopButton from "./stop-button";
 import SendButton from "./send-button";
 
 export default function Chat({ id, initialMessages }: { id: string; initialMessages: Message[] }) {
-  // const [currentFile, setCurrentFile] = useState<File | null>(null);
   const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({ id, body: { id }, initialMessages });
-
-  // const handleFileChange = (e) => {
-  //   setCurrentFile(e.target.files[0]);
-  // };
-
-  // const submitPrompt = async (e: FormDataEvent) => {
-  //   const file = currentFile ? await currentFile.arrayBuffer() : null;
-
-  //   const payload = {
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     data: JSON.stringify({ file: file ? Buffer.from(file).toString("base64") : null }),
-  //   };
-
-  //   console.log("Request payload:", JSON.stringify(payload));
-
-  //   handleSubmit(e, payload);
-  // };
 
   const submitForm = useCallback(
     (e: React.FormEvent) => {

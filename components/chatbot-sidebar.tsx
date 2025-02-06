@@ -1,28 +1,26 @@
 "use client";
 
 import * as React from "react";
-import { MessageSquare, Plus, } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider } from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
 import { useRouter } from "next/navigation";
-import { DefaultSession,  } from "next-auth";
+import { SidebarHistory } from "./sidebar-history";
+import { useSession } from "next-auth/react";
+import { User } from "@/lib/types";
 
-// TODO: create an api endpoint to fetch recent chats
-const recentConversations = [
-  { id: 1, title: "Weather Inquiry", date: "2025-02-04" },
-  { id: 2, title: "Product Recommendation", date: "2025-02-03" },
-  { id: 3, title: "Technical Support", date: "2025-02-02" },
-  { id: 4, title: "Booking Assistance", date: "2025-02-01" },
-];
-
-export function ChatbotSidebar({ user }: { user: DefaultSession }) {
+export function ChatbotSidebar() {
   const router = useRouter();
 
+  const { data: session } = useSession();
+
+  const user = session?.user;
+
   return (
-      <Sidebar className="group-data-[side=left]:border-r-0">
-        <SidebarHeader>
-          {/* <SidebarGroup className="py-2">
+    <Sidebar className="group-data-[side=left]:border-r-0">
+      <SidebarHeader>
+        {/* <SidebarGroup className="py-2">
             <SidebarGroupContent>
               <form>
                 <div className="relative">
@@ -35,48 +33,22 @@ export function ChatbotSidebar({ user }: { user: DefaultSession }) {
               </form>
             </SidebarGroupContent>
           </SidebarGroup> */}
-        </SidebarHeader>
-        {user ? (
-          <SidebarContent>
-            <SidebarGroup>
-              <SidebarGroupLabel>Recent Conversations</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {recentConversations.map((conversation) => (
-                    <SidebarMenuItem key={conversation.id}>
-                      <SidebarMenuButton asChild>
-                        <a href={`#conversation-${conversation.id}`}>
-                          <MessageSquare className="h-4 w-4" />
-                          <span>{conversation.title}</span>
-                        </a>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </SidebarContent>
-        ) : (
-          <SidebarGroup>
-            <SidebarGroupContent>
-              <div className="p-4 text-center">
-                <p className="text-muted-foreground mb-4">Please log in to see your conversation history.</p>
-              </div>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-        <div className="mt-auto p-4">
-          <Button
-            className="w-full justify-start"
-            onClick={() => {
-              router.push("/");
-              router.refresh();
-            }}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            New Conversation
-          </Button>
-        </div>
-      </Sidebar>
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarHistory user={user as User} />
+      </SidebarContent>
+      <div className="mt-auto p-4">
+        <Button
+          className="w-full justify-start"
+          onClick={() => {
+            router.push("/");
+            router.refresh();
+          }}
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          New Conversation
+        </Button>
+      </div>
+    </Sidebar>
   );
 }
