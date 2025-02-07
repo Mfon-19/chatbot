@@ -1,4 +1,4 @@
-import { convertToCoreMessages, createDataStreamResponse, streamText } from "ai";
+import { convertToCoreMessages, createDataStreamResponse, streamText, TextPart } from "ai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { v4 as uuid } from "uuid";
 import { deleteChatByChatId, getChatById, getUserIdByEmail, saveChat, saveMessages } from "@/lib/queries";
@@ -48,9 +48,8 @@ export async function POST(req: Request) {
           messages: coreMessages,
 
           onFinish: async ({ response }) => {
-            console.log("Bot response is: ", response.messages[0].content[0].text);
             try {
-              saveMessages({ id: uuid(), chatId: id, role: "bot", content: response.messages[0].content[0].text });
+              saveMessages({ id: uuid(), chatId: id, role: "bot", content: (response.messages[0].content[0] as TextPart).text});
             } catch (error) {
               console.log(`Error occured: ${error}`);
             }
