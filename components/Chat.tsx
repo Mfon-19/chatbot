@@ -18,12 +18,12 @@ export default function Chat({ id, initialMessages }: { id: string; initialMessa
   }, [handleSubmit, id]);
 
   return (
-    <div className="flex flex-col min-w-0 h-dvh bg-background">
+    <div className="flex flex-col min-w-0 h-dvh bg-background pl-5">
       <Header />
-      <div className="flex flex-col min-w-0 gap-6 flex-1 overflow-y-scroll pt-4">
+      <div className="flex flex-col min-w-0 gap-6 flex-1 overflow-y-scroll py-4">
         {messages.length === 0 && <h1 className="text-3xl font-bold mb-4 text-center">What can I help you with?</h1>}
         {messages.map((message, index) => (
-          <div key={index} className={`flex items-start space-x-2 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+          <div key={index} className={`flex items-start space-x-2 ${message.role === "user" ? "justify-end pr-5" : "justify-start"}`}>
             {message.role !== "user" && (
               <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
                 <Bot size={20} />

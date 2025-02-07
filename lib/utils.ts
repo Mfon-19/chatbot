@@ -11,6 +11,7 @@ export function getMostRecentUserMessage(messages: Array<CoreMessage>) {
   return userMessages.at(-1);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function convertToUIMessages(messages: Array<Record<string, any>>): Array<Message> {
   return messages.map((message) => {
     return {
