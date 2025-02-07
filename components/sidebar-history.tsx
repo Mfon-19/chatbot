@@ -4,16 +4,25 @@ import { MessageSquare, TrashIcon } from "lucide-react";
 import { fetcher } from "@/lib/utils";
 import { Chat, User } from "@/lib/types";
 import Link from "next/link";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from "./ui/dropdown-menu";
 import { toast } from "sonner";
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 export function SidebarHistory({ user }: { user: User }) {
   const { data: history, mutate, isLoading } = useSWR<Array<Chat>>(user ? "/api/history" : null, fetcher, { fallbackData: [] });
+  const pathname = usePathname();
+
+  useEffect(() => {
+    mutate();
+  }, [pathname, mutate]);
 
   const handleDelete = async (id: string) => {
     const deletePromise = fetch("/api/chat", {
       method: "DELETE",
-      body: JSON.stringify(id),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id }),
     });
 
     toast.promise(deletePromise, {

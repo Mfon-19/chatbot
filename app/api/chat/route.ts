@@ -1,4 +1,4 @@
-import { convertToCoreMessages, streamText } from "ai";
+import { convertToCoreMessages, createDataStreamResponse, streamText } from "ai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { v4 as uuid } from "uuid";
 import { deleteChatByChatId, getChatById, getUserIdByEmail, saveChat, saveMessages } from "@/lib/queries";
@@ -35,13 +35,32 @@ export async function POST(req: Request) {
 
     await saveMessages({ id: uuid(), chatId: id, content: userMessage.content.toString(), role: userMessage.role });
 
-    const result = streamText({
-      model: google("gemini-1.5-flash"),
-      system: "You are a helpful assistant.",
-      messages: coreMessages,
-    });
+    return createDataStreamResponse({
+      execute: (dataStream) => {
+        dataStream.writeData({
+          type: "user-message-id",
+          content: uuid(),
+        });
 
-    return result.toDataStreamResponse();
+        const result = streamText({
+          model: google("gemini-1.5-flash"),
+          system: "You are a helpful assistant.",
+          messages: coreMessages,
+
+          onFinish: async ({ response }) => {
+            console.log("Bot response is: ", response.messages[0].content[0].text);
+            try {
+              saveMessages({ id: uuid(), chatId: id, role: "bot", content: response.messages[0].content[0].text });
+            } catch (error) {
+              console.log(`Error occured: ${error}`);
+            }
+          },
+        });
+
+        result.mergeIntoDataStream(dataStream);
+      },
+      onError: (error) => `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
+    });
   } catch (error) {
     console.error("Error", error);
     return new Response("Invalid request data", { status: 400 });
