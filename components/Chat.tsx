@@ -5,7 +5,7 @@ import { Bot, User } from "lucide-react";
 import { useCallback } from "react";
 import { Message, useChat } from "ai/react";
 import { Markdown } from "./markdown";
-import Header from "./Header";
+import Header from "./header";
 import StopButton from "./stop-button";
 import SendButton from "./send-button";
 

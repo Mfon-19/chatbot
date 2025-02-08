@@ -1,4 +1,4 @@
-import Chat from "@/components/Chat";
+import Chat from "@/components/chat";
 import { getMessagesByChatId } from "@/lib/queries";
 import { convertToUIMessages } from "@/lib/utils";
 import React from "react";

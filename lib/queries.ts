@@ -22,6 +22,24 @@ export async function getUserIdByEmail({ email }: { email: string }) {
   }
 }
 
+export async function createUser({ id, name, email }: { id: string; name: string; email: string }) {
+  try {
+    return await sql`INSERT INTO users (id, name, email) VALUES (${id}, ${name}, ${email})`;
+  } catch (error) {
+    console.error(`Failed to create user in database: ${error}`);
+    throw error;
+  }
+}
+
+export async function getUserByEmail({ email }: { email: string }) {
+  try {
+    return await sql`SELECT * FROM users WHERE email = ${email}`;
+  } catch (error) {
+    console.error(`Failed to fetch user by email: ${error}`);
+    throw error;
+  }
+}
+
 export async function saveChat({ id, userId, title }: { id: string; userId: string; title: string }) {
   try {
     return await sql`INSERT INTO chats (id, user_id, title) VALUES (${id}, ${userId}, ${title})`;
