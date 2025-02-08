@@ -12,6 +12,7 @@ import SendButton from "./send-button";
 export default function Chat({ id, initialMessages }: { id: string; initialMessages: Message[] }) {
   const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({ id, body: { id }, initialMessages });
 
+  
   const submitForm = useCallback(() => {
     window.history.replaceState({}, "", `/chat/${id}`);
     handleSubmit(undefined);
