@@ -11,13 +11,13 @@ export async function POST(req: Request) {
 
     const result = await getUserByEmail({ email });
 
-    if (result.length === 0) {
-      await createUser({ id: uuid(), name, email });
-    }
+    if (result.length !== 0) return new Response("User already exists", { status: 409 });
+
+    await createUser({ id: uuid(), name, email });
 
     return new Response("User created successfully", { status: 200 });
   } catch (error) {
-    console.error("Error in handler:", error);
+    console.error("Error in handler: ", error);
     return new Response("Error creating user", { status: 500 });
   }
 }

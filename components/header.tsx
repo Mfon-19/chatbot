@@ -6,40 +6,24 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import Image from "next/image";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { useEffect } from "react";
-import { SidebarToggle } from '@/components/sidebar-toggle';
+import { SidebarToggle } from "@/components/sidebar-toggle";
+import { createUser } from "@/lib/utils";
 
 export default function Header() {
   const { data: session, status } = useSession();
 
   useEffect(() => {
-    const createUser = async () => {
-      console.log(`Email: ${session?.user?.email}, Name: ${session?.user?.name}`)
-      if (session?.user) {
-        try {
-          const response = await fetch("/api/users", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ email: session?.user?.email, name: session?.user?.name }),
-          });
-
-          if (!response.ok) {
-            // Server responded with an error status
-            const errorData = await response.text();
-            console.error(`Error creating user: ${response.status} - ${response.statusText}`, errorData);
-            return;
-          }
-        } catch (error) {
-          console.error(`Error creating user: ${error}`);
-        }
-      }
-    };
-
-    if (status === "authenticated") {
-      createUser();
+    let isLatestRequest = true;
+    if (status === "authenticated" && session.user?.email) {
+      createUser(session.user?.email, session.user?.name ?? "").catch((error) => {
+        if (!isLatestRequest) console.error(`Error creating user: ${error}`);
+      });
     }
-  }, [status, session]);
+
+    return () => {
+      isLatestRequest = false;
+    };
+  }, [status, session?.user?.email, session?.user?.name]);
 
   return (
     <header className="flex sticky top-0 bg-background py-1.5 items-center px-2 md:px-2 gap-2 justify-between">

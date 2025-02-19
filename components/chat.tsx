@@ -3,20 +3,20 @@
 import { Textarea } from "@/components/ui/textarea";
 import { Bot, User } from "lucide-react";
 import { useCallback } from "react";
-import { Message, useChat } from "ai/react";
-import { Markdown } from "./markdown";
+import { useChat } from "ai/react";
 import Header from "./header";
 import StopButton from "./stop-button";
 import SendButton from "./send-button";
+import { ChatProps } from "@/lib/types";
+import { Markdown } from "./markdown";
 
-export default function Chat({ id, initialMessages }: { id: string; initialMessages: Message[] }) {
+export default function Chat({ id, initialMessages, isAuthenticated }: ChatProps) {
   const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({ id, body: { id }, initialMessages });
 
-  
   const submitForm = useCallback(() => {
-    window.history.replaceState({}, "", `/chat/${id}`);
+    if (isAuthenticated) window.history.replaceState({}, "", `/chat/${id}`);
     handleSubmit(undefined);
-  }, [handleSubmit, id]);
+  }, [handleSubmit, id, isAuthenticated]);
 
   return (
     <div className="flex flex-col min-w-0 h-dvh bg-background pl-5">
@@ -45,7 +45,7 @@ export default function Chat({ id, initialMessages }: { id: string; initialMessa
             <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
               <Bot size={20} />
             </div>
-            <div className="bg-gray-100 text-gray-800 rounded-lg p-2 max-w-xs lg:max-w-md">Thinking...</div>
+            <div className=" text-gray-800 rounded-lg p-2 max-w-xs lg:max-w-md animate-pulse">Thinking...</div>
           </div>
         )}
       </div>

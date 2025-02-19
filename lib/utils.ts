@@ -23,7 +23,7 @@ export function convertToUIMessages(messages: Array<Record<string, any>>): Array
   });
 }
 
-export const fetcher = async (url: string) => {
+export async function fetcher(url: string) {
   const result = await fetch(url);
 
   if (!result.ok) {
@@ -31,4 +31,26 @@ export const fetcher = async (url: string) => {
   }
 
   return result.json();
-};
+}
+
+export async function createUser(email: string, name: string) {
+  try {
+    const response = await fetch("/api/users", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, name }),
+    });
+
+    if (!response.ok) {
+      if (response.status === 409) return;
+      console.error(`Error creating user: ${await response.text()}`);
+      return;
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error(`Error creating user: ${error}`);
+  }
+}

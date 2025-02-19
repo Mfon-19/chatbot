@@ -1,22 +1,16 @@
-import { convertToCoreMessages, createDataStreamResponse, streamText, TextPart } from "ai";
+import { convertToCoreMessages, CoreMessage, createDataStreamResponse, streamText, TextPart } from "ai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { v4 as uuid } from "uuid";
 import { deleteChatByChatId, getChatById, getUserIdByEmail, saveChat, saveMessages } from "@/lib/queries";
 import { getMostRecentUserMessage } from "@/lib/utils";
 import { generateTitleFromUserMessage } from "@/app/actions";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/auth";
+import { auth } from "@/auth";
 
 export const maxDuration = 30;
 const google = createGoogleGenerativeAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) return new Response("Unauthorized", { status: 401 });
-
-    const userId = await getUserIdByEmail({ email: session.user?.email || "" });
-
     const { id, messages } = await req.json();
 
     const coreMessages = convertToCoreMessages(messages);
@@ -25,6 +19,12 @@ export async function POST(req: Request) {
     if (!userMessage) {
       return new Response("No user message found", { status: 400 });
     }
+
+    const session = await auth();
+
+    if (!session) return streamUnauthenticatedResponse(coreMessages);
+
+    const userId = await getUserIdByEmail({ email: session.user?.email || "" });
 
     const chat = await getChatById({ id });
 
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
 
           onFinish: async ({ response }) => {
             try {
-              saveMessages({ id: uuid(), chatId: id, role: "bot", content: (response.messages[0].content[0] as TextPart).text});
+              saveMessages({ id: uuid(), chatId: id, role: "assistant", content: (response.messages[0].content[0] as TextPart).text });
             } catch (error) {
               console.log(`Error occured: ${error}`);
             }
@@ -68,7 +68,7 @@ export async function POST(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session || !session.user) return new Response("Unauthorized", { status: 401 });
 
     const { id } = await req.json();
@@ -80,4 +80,18 @@ export async function DELETE(req: Request) {
     console.error(`An error occured: ${error}`);
     return new Response("An error occured", { status: 500 });
   }
+}
+
+async function streamUnauthenticatedResponse(coreMessages: CoreMessage[]) {
+  return createDataStreamResponse({
+    execute: (dataStream) => {
+      const result = streamText({
+        model: google("gemini-1.5-flash"),
+        system: "You are a helpful assistant.",
+        messages: coreMessages,
+      });
+      result.mergeIntoDataStream(dataStream);
+    },
+    onError: (error) => `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
+  });
 }
