@@ -1,20 +1,21 @@
-import { Button } from "./ui/button";
-import { StopIcon } from "./icons";
+"use client";
 
-export default function StopButton({
-  stop,
-}: {
+import { Button } from "@/components/ui/button";
+import { Square } from "lucide-react";
+import { motion } from "framer-motion";
+
+interface StopButtonProps {
   stop: () => void;
-}) {
+}
+
+export default function StopButton({ stop }: StopButtonProps) {
   return (
-    <Button
-      className="rounded-full p-1.5 h-fit border dark:border-zinc-600"
-      onClick={(event) => {
-        event.preventDefault();
-        stop();
-      }}
-    >
-      <StopIcon size={14} />
-    </Button>
+    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+      <Button
+        className="btn-glass h-10 w-10 p-0 text-white hover:bg-red-500/20 hover:text-red-300 transition-all duration-200"
+        onClick={() => stop()}>
+        <Square size={16} />
+      </Button>
+    </motion.div>
   );
 }

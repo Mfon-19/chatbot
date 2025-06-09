@@ -1,8 +1,12 @@
 import { useSidebar } from "@/components/ui/sidebar";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-
-import { SidebarLeftIcon } from "./icons";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { PanelLeft } from "lucide-react";
 import { Button } from "./ui/button";
+import { motion } from "framer-motion";
 
 export function SidebarToggle() {
   const { toggleSidebar } = useSidebar();
@@ -10,11 +14,21 @@ export function SidebarToggle() {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button onClick={toggleSidebar} variant="outline" className="md:px-2 md:h-fit">
-          <SidebarLeftIcon size={16} />
-        </Button>
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <Button
+            onClick={toggleSidebar}
+            variant="ghost"
+            size="sm"
+            className="glass hover:glass-strong h-10 w-10 p-0 text-white border-white/20 hover:border-white/30 transition-all duration-200">
+            <PanelLeft size={18} />
+          </Button>
+        </motion.div>
       </TooltipTrigger>
-      <TooltipContent align="start">Toggle Sidebar</TooltipContent>
+      <TooltipContent
+        align="start"
+        className="glass border-white/20 backdrop-blur-md text-white">
+        Toggle Sidebar
+      </TooltipContent>
     </Tooltip>
   );
 }
